@@ -1,0 +1,44 @@
+@startuml
+autonumber
+
+' Настройка стилей для выделения задержек
+skinparam note {
+    BackgroundColor #LightCoral
+    BorderColor #454645
+    FontSize 12
+}
+
+actor "Клиент" as Client
+actor "Менеджер отделения" as Manager
+participant "АБС (Oracle/Delphi)" as ABS
+participant "Кредитный конвейер\n(Camunda)" as Camunda
+participant "Система скоринга\n(Python/ML)" as Scoring
+participant "БКИ (Внешняя)" as BKI
+
+== Фаза подачи заявки ==
+Client -> Manager : Подает документы
+Manager -> ABS : Создает заявку на кредит
+ABS -> ABS : Сохраняет заявку в БД
+
+note over ABS, Camunda : **КРИТИЧЕСКАЯ ЗАДЕРЖКА**\nВыгрузка раз в сутки (Batch)
+
+== Фаза обработки (Кредитный отдел) ==
+ABS -[#orange]> Camunda : Передача данных через БД
+Camunda -> Scoring : Запрос скоринга (REST API)
+activate Scoring
+Scoring -> BKI : Запрос истории (REST API, онлайн)
+BKI --> Scoring : Данные получены
+note right of Scoring : Использует данные АБС о платежах,\nполученные с задержкой 24ч
+Scoring --> Camunda : Итоговый балл
+deactivate Scoring
+
+Camunda -> Camunda : Сотрудник принимает решение
+
+note over Camunda, ABS : **ЗАДЕРЖКА**\nВыгрузка раз в сутки (Batch)
+
+== Фаза исполнения ==
+Camunda -[#orange]> ABS : Передача статуса "Одобрено" через БД
+ABS -> ABS : Проводки по зачислению средств
+ABS -> Client : Зачисление денег на счет
+
+@enduml
