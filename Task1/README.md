@@ -45,7 +45,7 @@
 
 ## 4. Схема интеграции приложений с указанием участников.
 <div style="background-color: black; padding: 10px; display: inline-block;">
-<img src="./actor/actor.png" alt="Схема интеграции приложений с указанием участников.">
+<img src="./actor/actor.png" alt="Схема интеграции приложений с указанием участников." style="max-width: 100%; background-color:#000">
 </div>
 
 
