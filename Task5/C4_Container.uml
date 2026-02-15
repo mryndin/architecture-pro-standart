@@ -1,0 +1,49 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контейнеров: Кредитный конвейер
+
+Person(client, "Клиент", "Подает заявку на кредит")
+
+System_Boundary(bank_internal, "Внутренний контур Банка") {
+    
+    Container(spa, "Single Page Application / Mobile App", "React/Flutter", "Интерфейс подачи заявки")
+    
+    Container(gateway, "API Gateway", "Nginx / Spring Cloud Gateway", "Точка входа, аутентификация")
+
+    Container(loan_service, "Loan Service", "Java / Spring Boot", "Оркестрация заявки, управление жизненным циклом (Saga)")
+    
+    ContainerDb(loan_db, "Loan Database", "PostgreSQL", "Хранение анкет и состояний заявок")
+
+    Container(risk_engine, "Risk Engine", "Python / Drools", "Выполнение скоринговых моделей и правил одобрения")
+
+    Container(rate_engine, "Rate Engine", "Java / Spring Boot", "Предоставление актуальных ставок по продуктам")
+
+    Container(kafka, "Message Broker", "Kafka", "Асинхронный обмен сообщениями между сервисами")
+
+    Container(abs_adapter, "ABS Integration Adapter", "Java", "Трансляция данных в форматы АБС")
+}
+
+System_Ext(bki, "Бюро кредитных историй", "Внешний сервис")
+System_Ext(abs, "АБС (ЦФТ)", "Унаследованная банковская система")
+
+' Связи
+Rel(client, spa, "Использует")
+Rel(spa, gateway, "Запросы заявки", "HTTPS/JSON")
+Rel(gateway, loan_service, "Перенаправляет запросы", "HTTPS/JSON")
+
+Rel(loan_service, loan_db, "CRUD данных заявки")
+Rel(loan_service, rate_engine, "Запрос условий", "gRPC/REST")
+Rel(loan_service, kafka, "События заявки (Прескоринг, Скоринг)")
+
+Rel(kafka, risk_engine, "Инициирует расчет риска")
+Rel(risk_engine, kafka, "Результат скоринга")
+
+Rel(loan_service, bki, "Запрос данных (через адаптер)", "HTTPS")
+
+Rel(kafka, abs_adapter, "Команда на создание договора")
+Rel(abs_adapter, abs, "Регистрация сделки", "MQ/XML")
+
+@enduml

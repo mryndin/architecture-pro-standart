@@ -1,0 +1,23 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контекста: Онлайн-подача заявки на кредит
+
+Person(client, "Клиент", "Подает заявку на кредит через сайт или мобильное приложение")
+
+System_Boundary(bank_boundary, "Банк «Стандарт»") {
+    System(credit_system, "Система кредитования (Loan System)", "Обрабатывает заявки, проводит проверки и оформляет договоры")
+}
+
+System_Ext(bki, "Бюро кредитных историй (БКИ)", "Предоставляет кредитные отчеты и скоринговые баллы")
+System_Ext(gosuslugi, "Госуслуги (SMEV)", "Подтверждение ПДн и доходов клиента")
+System_Ext(abs, "АБС (ЦФТ)", "Главная банковская система: ведение счетов и договоров")
+
+Rel(client, credit_system, "Подает заявку, прикрепляет документы", "HTTPS/JSON")
+Rel(credit_system, bki, "Запрос кредитной истории", "REST API/SOAP")
+Rel(credit_system, gosuslugi, "Запрос подтвержденных данных", "REST API/SOAP")
+Rel(credit_system, abs, "Создание договора и счета", "XML/MQ")
+
+@enduml
