@@ -1,0 +1,35 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контейнеров: Интеграция кол-центров
+
+System_Boundary(bank_internal, "Внутренний контур Банка") {
+    
+    Container(cc_app, "Система КЦ (АРМ)", "React/Java", "Интерфейс оператора внутреннего КЦ")
+    
+    Container(rate_engine, "Rate Engine", "Java / Spring Boot", "Микросервис: расчет и хранение ставок")
+    
+    ContainerDb(redis, "Redis Cache", "In-memory", "Кэш для мгновенной отдачи ставок")
+    
+    Container(exporter, "File Exporter Job", "Java / Quartz", "Компонент Rate Engine: формирует Excel/CSV файлы")
+}
+
+System_Boundary(bank_dmz, "DMZ (Внешний периметр)") {
+    Container(sftp, "SFTP Server", "Linux / OpenSSH", "Хранилище файлов для внешних систем")
+}
+
+System_Ext(partner_it, "Система партнера", "ПО внешнего кол-центра")
+
+' Связи внутреннего КЦ
+Rel(cc_app, rate_engine, "Запрос ставок (REST API)", "JSON/HTTPS")
+Rel(rate_engine, redis, "Читает кэш")
+
+' Связи партнерского КЦ (через файл)
+Rel_D(rate_engine, exporter, "Инициирует выгрузку по расписанию")
+Rel_D(exporter, sftp, "Загружает файл со ставками (File Transfer)", "SFTP/SSH")
+
+Rel_U(partner_it, sftp, "Скачивает файл (File Transfer)", "SFTP/SSH")
+
+@enduml
