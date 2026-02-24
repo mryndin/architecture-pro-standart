@@ -1,0 +1,72 @@
+@startuml
+!theme spacelab
+skinparam componentStyle rectangle
+skinparam packageStyle frame
+
+title Карта IT-ландшафта и участников процессов банка «Стандарт» (As-Is)
+
+' --- УЧАСТНИКИ ПРОЦЕССОВ ---
+actor "Клиент" as User #LightGreen
+actor "Сотрудник отделения\n(Фронт-офис)" as FrontStaff #LightBlue
+actor "Менеджер депозитов\n(Бэк-офис)" as BackDeposit #Gold
+actor "Сотрудник кредитования\n(Бэк-офис)" as BackCredit #Coral
+
+package "Фронт-офис и Каналы" {
+    [Сайт (PHP/React)] as Site
+    [Интернет-банк (ASP.NET)] as IB
+    [Рабочее место сотрудника (Delphi)] as Branch
+    [Система кол-центра (React/Java)] as CC
+}
+
+package "Бэк-офис и Ядро" {
+    database "Oracle (АБС)" as ABS_DB {
+        [Процедуры PL/SQL]
+    }
+    [АБС (Delphi/Oracle)] as ABS
+    [Excel (Расчет ставок)] as Excel
+}
+
+package "Кредитный конвейер" {
+    [Camunda BPM] as Camunda
+    [Scoring Service (Python)] as Scoring
+}
+
+package "Внешние системы" {
+    [БКИ] as BKI
+    [СМС-шлюз] as SMS
+}
+
+' --- ВЗАИМОДЕЙСТВИЕ УЧАСТНИКОВ С СИСТЕМАМИ ---
+User --> Site : "Просмотр условий"
+User --> IB : "Платежи"
+User --> FrontStaff : "Визит в отделение"
+
+FrontStaff --> Branch : "Заведение заявок"
+BackDeposit --> Excel : "Расчет ставок"
+BackDeposit --> ABS : "Обработка заявок"
+BackCredit --> Camunda : "Принятие решения"
+BackCredit --> ABS : "Анализ риска"
+
+' --- ТЕХНИЧЕСКИЕ ИНТЕГРАЦИИ ---
+IB -[#red]- ABS_DB : "Прямое чтение БД"
+Excel .[#blue].> ABS : "Ручной ввод ставок"
+Branch --> ABS : "Интеграция"
+CC --> ABS : "Передача лидов"
+
+ABS -[#orange]- Camunda : "Batch-обмен (24ч)"
+Camunda <--> Scoring : "REST API"
+Scoring <--> BKI : "REST API"
+ABS --> SMS : "СМС-уведомления"
+
+' --- КОММУНИКАЦИЯ (РУЧНАЯ) ---
+BackDeposit <.[#blue].> BackCredit : "Запрос спец. ставок (Email)"
+FrontStaff <.[#blue].> BackDeposit : "Запрос условий (Email)"
+
+legend right
+  | Цвет | Описание |
+  | <#red> | Опасная интеграция (через БД) |
+  | <#blue> | Ручной процесс / Email / Excel |
+  | <#orange> | Пакетная выгрузка (Задержка 24ч) |
+endlegend
+
+@enduml

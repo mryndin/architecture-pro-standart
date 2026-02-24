@@ -1,0 +1,57 @@
+<mxGraphModel dx="2066" dy="1111" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="title" parent="1" style="text;html=1;align=center;fontSize=20;fontStyle=1" value="Детализированная дорожная карта развития сервиса ставок (12 месяцев)" vertex="1">
+      <mxGeometry height="40" width="900" x="100" y="20" as="geometry" />
+    </mxCell>
+    <mxCell id="h1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontStyle=1" value="Q1: Foundation (0-3 мес)" vertex="1">
+      <mxGeometry height="30" width="250" x="160" y="80" as="geometry" />
+    </mxCell>
+    <mxCell id="h2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;fontStyle=1" value="Q2: MVP (3-6 мес)" vertex="1">
+      <mxGeometry height="30" width="250" x="410" y="80" as="geometry" />
+    </mxCell>
+    <mxCell id="h3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;fontStyle=1" value="Q3-Q4: Target (6-12 мес)" vertex="1">
+      <mxGeometry height="30" width="280" x="660" y="80" as="geometry" />
+    </mxCell>
+    <mxCell id="swim1" parent="1" style="shape=swimlane;horizontal=0;fillColor=#dae8fc;" value="Backend (Rate Engine)" vertex="1">
+      <mxGeometry height="130" width="900" x="40" y="120" as="geometry" />
+    </mxCell>
+    <mxCell id="b1" parent="swim1" style="rounded=1;fillColor=#ffffff;" value="Интеграция с Kafka.&#xa;Мастер-база ставок." vertex="1">
+      <mxGeometry height="45" width="200" x="150" y="25" as="geometry" />
+    </mxCell>
+    <mxCell id="b2" parent="swim1" style="rounded=1;fillColor=#ffffff;fontStyle=1;strokeWidth=2" value="REST API для КЦ.&#xa;Модуль экспорта Excel." vertex="1">
+      <mxGeometry height="45" width="200" x="400" y="25" as="geometry" />
+    </mxCell>
+    <mxCell id="b3" parent="swim1" style="rounded=1;fillColor=#ffffff;" value="Персонализация ставок&#xa;(ML + Scoring интеграция)" vertex="1">
+      <mxGeometry height="45" width="220" x="650" y="25" as="geometry" />
+    </mxCell>
+    <mxCell id="swim2" parent="1" style="shape=swimlane;horizontal=0;fillColor=#ffe6cc;" value="Интеграции / КЦ" vertex="1">
+      <mxGeometry height="130" width="900" x="40" y="250" as="geometry" />
+    </mxCell>
+    <mxCell id="i1" parent="swim2" style="rounded=1;fillColor=#ffffff;" value="Подготовка АРМ КЦ&#xa;к переходу на API" vertex="1">
+      <mxGeometry height="45" width="200" x="150" y="25" as="geometry" />
+    </mxCell>
+    <mxCell id="i2" parent="swim2" style="rounded=1;fillColor=#ffffff;fontStyle=1;strokeWidth=2" value="Внедрение API в внутр. КЦ.&#xa;Скрипты выгрузки для партнера." vertex="1">
+      <mxGeometry height="45" width="200" x="400" y="25" as="geometry" />
+    </mxCell>
+    <mxCell id="i3" parent="swim2" style="rounded=1;fillColor=#ffffff;" value="Перевод партнера на API.&#xa;Отказ от файлового обмена." vertex="1">
+      <mxGeometry height="45" width="220" x="650" y="25" as="geometry" />
+    </mxCell>
+    <mxCell id="swim3" parent="1" style="shape=swimlane;horizontal=0;fillColor=#fff2cc;" value="Инфраструктура / СБ" vertex="1">
+      <mxGeometry height="100" width="900" x="40" y="380" as="geometry" />
+    </mxCell>
+    <mxCell id="s1" parent="swim3" style="rounded=1;fillColor=#ffffff;" value="Развертывание Redis Cluster" vertex="1">
+      <mxGeometry height="40" width="200" x="150" y="30" as="geometry" />
+    </mxCell>
+    <mxCell id="s2" parent="swim3" style="rounded=1;fillColor=#ffffff;fontStyle=1;strokeWidth=2" value="SFTP шлюз в DMZ.&#xa;Настройка SSH-доступов." vertex="1">
+      <mxGeometry height="45" width="200" x="400" y="25" as="geometry" />
+    </mxCell>
+    <mxCell id="m1" parent="1" style="rhombus;fillColor=#d5e8d4;fontStyle=1" value="MVP" vertex="1">
+      <mxGeometry height="60" width="60" x="615" y="490" as="geometry" />
+    </mxCell>
+    <mxCell id="m2" parent="1" style="rhombus;fillColor=#e1d5e7;fontStyle=1" value="TARGET" vertex="1">
+      <mxGeometry height="60" width="60" x="910" y="490" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>

@@ -1,0 +1,32 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title C4 Component Diagram: Loan Service (Кредитный конвейер)
+
+Container(api_gateway, "API Gateway", "Nginx / Spring Cloud Gateway", "Точка входа, аутентификация и маршрутизация")
+ContainerDb(db, "Loan Database", "PostgreSQL", "Хранение анкет, состояний Saga и аудит-логов")
+Container(kafka, "Message Broker", "Kafka", "Шина для асинхронных проверок и событий")
+
+Container_Boundary(loan_service, "Loan Service") {
+    Component(app_controller, "Application Controller", "Spring MVC RestController", "Обрабатывает входящие API-запросы и управляет сессиями заполнения анкет")
+    Component(saga_coordinator, "Saga Coordinator", "Spring State Machine / Temporal", "Реализует паттерн Saga: управляет шагами заявки и механизмами компенсации при сбоях")
+    Component(validation_service, "Validation Service", "Java Component", "Проверяет полноту анкеты и корректность загруженных документов")
+    Component(scoring_gateway, "Scoring Gateway", "Spring Integration", "Интерфейс для взаимодействия с Risk Engine и внешними сервисами проверок через Kafka")
+    Component(persistence_module, "Persistence Module", "Spring Data JPA", "Обеспечивает запись данных в PostgreSQL и ведение транзакционного лога")
+}
+
+System_Ext(bki, "Бюро кредитных историй", "Внешний сервис проверки кредитной истории")
+
+' Связи между компонентами
+Rel(api_gateway, app_controller, "Передает запросы на создание/обновление заявок", "HTTPS/JSON")
+Rel(app_controller, validation_service, "Запрашивает валидацию анкеты")
+Rel(validation_service, saga_coordinator, "Инициирует новый процесс обработки (Saga)")
+Rel(saga_coordinator, scoring_gateway, "Запрашивает скоринг и внешние проверки")
+Rel(saga_coordinator, persistence_module, "Сохраняет текущий статус шага")
+Rel(persistence_module, db, "CRUD операции с данными заявки")
+Rel(scoring_gateway, kafka, "Публикует события для Risk Engine и адаптеров БКИ")
+Rel(kafka, bki, "Запрос данных через адаптер")
+
+@enduml

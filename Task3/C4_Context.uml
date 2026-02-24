@@ -1,0 +1,25 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title C4 Context: Система онлайн-открытия депозитов (MVP)
+
+Person(client, "Клиент банка", "Хочет открыть депозит онлайн через сайт или приложение")
+Person(manager, "Сотрудник Бэк-офиса", "Обрабатывает заявки и фиксирует открытие счета")
+Person_Ext(admin, "Администратор продуктов", "Управляет процентными ставками")
+
+System_Boundary(bank_boundary, "Банк «Стандарт»") {
+    System(internet_bank, "Интернет-банк / Сайт", "Веб-интерфейс для клиентов (.NET/React)")
+    System(deposit_system, "Система управления депозитами (New)", "Оркестрация заявок и расчет ставок")
+    System(abs, "АБС (Core Banking)", "Учет счетов, проводок и клиентов (Oracle)")
+    System(sms_gateway, "СМС-шлюз", "Отправка кодов подтверждения")
+}
+
+Rel(client, internet_bank, "Подает заявку, просматривает ставки")
+Rel(internet_bank, deposit_system, "Запрашивает ставки, отправляет заявки")
+Rel(deposit_system, abs, "Передает данные заявки (Async)")
+Rel(manager, abs, "Подтверждает открытие счета")
+Rel(abs, sms_gateway, "Инициирует отправку СМС")
+Rel(sms_gateway, client, "Присылает OTP код")
+Rel(admin, deposit_system, "Обновляет ставки (вместо Excel)")
+
+@enduml

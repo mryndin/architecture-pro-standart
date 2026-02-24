@@ -1,0 +1,43 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title C4 Container: Архитектура открытия депозитов (MVP)
+
+Person(client, "Клиент", "Пользователь ИБ")
+
+System_Boundary(c1, "Интернет-банк (Frontend & API)") {
+    Container(web_app, "SPA Application", "React", "Интерфейс выбора депозита")
+    Container(api_gateway, "API Gateway / Backend", ".NET Framework", "Агрегация запросов, первичная валидация")
+}
+
+System_Boundary(c2, "Слой микросервисов (New)") {
+    Container(rate_engine, "Rate Engine Service", "Java Spring Boot", "Расчет ставок, хранение условий продуктов")
+    Container(deposit_service, "Deposit Application Service", "Java Spring Boot", "Прием заявок, валидация бизнес-правил")
+    ContainerDb(redis, "Cache", "Redis", "Кэш ставок и справочников для быстрой отдачи")
+    ContainerDb(kafka, "Message Broker", "Kafka", "Очередь заявок на открытие")
+}
+
+System_Boundary(c3, "Core Banking (Legacy)") {
+    Container(abs_adapter, "ABS Integration Adapter", "Java/PL-SQL", "Вычитывает заявки из Kafka и создает сущности в АБС")
+    Container(abs_core, "АБС Ядро", "Delphi/Oracle", "Учет счетов и клиентов")
+    ContainerDb(oracle_db, "ABS Database", "Oracle DB", "Главное хранилище данных")
+}
+
+' Связи
+Rel(client, web_app, "HTTPS")
+Rel(web_app, api_gateway, "REST / JSON")
+
+' Интеграция ИБ с микросервисами
+Rel(api_gateway, rate_engine, "GET /rates (REST)", "Запрос актуальных ставок")
+Rel(api_gateway, deposit_service, "POST /application (REST)", "Отправка заявки")
+Rel(rate_engine, redis, "Read/Write")
+
+' Асинхронная передача в АБС
+Rel(deposit_service, kafka, "Publish: NewDepositApplication")
+Rel(abs_adapter, kafka, "Subscribe")
+Rel(abs_adapter, abs_core, "RPC / Stored Proc", "Создание договора")
+
+' Легаси связь (чтение остатков для ИБ) - остается пока, но через Read Replica
+Rel(api_gateway, oracle_db, "SQL (Read Only)", "Просмотр текущих счетов")
+
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контекста: Система управления ставками (Task 4)
+
+Person(client, "Клиент банка", "Хочет уточнить условия по вкладу по телефону")
+Person(operator_int, "Оператор внутр. КЦ", "Консультирует клиентов")
+Person(operator_ext, "Оператор партнера", "Консультирует клиентов (аутсорс)")
+
+System_Boundary(bank_boundary, "Банк «Стандарт»") {
+    System(bank_system, "ИТ-система Банка", "Микросервисная архитектура, хранит и управляет ставками")
+    System(sftp_server, "SFTP Сервер (DMZ)", "Шлюз для безопасной передачи файлов партнеру")
+}
+
+System_Ext(partner_system, "Система партнера", "Информационная система внешнего КЦ")
+
+Rel(client, operator_int, "Звонит в банк")
+Rel(client, operator_ext, "Звонит (перевод на партнера)")
+
+Rel(operator_int, bank_system, "Смотрит актуальные ставки в АРМ (API)")
+Rel(bank_system, sftp_server, "Выгружает файл со ставками (Scheduled Push)")
+Rel(partner_system, sftp_server, "Забирает файл по расписанию (Pull)")
+Rel(operator_ext, partner_system, "Видит ставки из загруженного файла")
+
+@enduml
